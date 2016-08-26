@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Add Git hooks to a repository that will automatically parse story #s
+# and insert them into commit messages
+#
+# Requirements:
+#  - bash >= 3.0.0
+#
+
+function branchname () {
+    git rev-parse --abbrev-ref HEAD 2>/dev/null
+}
+
+BRANCH_NAME=$(branchname)
+COMMIT_MSG=$(cat $1)
+
+if [[ $BRANCH_NAME =~ ^([0-9]+) ]]; then
+    BRANCH_NUMBER="${BASH_REMATCH[1]}"
+fi
+
+if [[ ! $COMMIT_MSG =~ ^[0-9] && -n $BRANCH_NUMBER ]]; then
+    { echo -n "${BRANCH_NUMBER} "; echo "${COMMIT_MSG}"; } > "$1"
+fi
